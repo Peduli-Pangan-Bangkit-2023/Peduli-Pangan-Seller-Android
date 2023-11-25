@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Peduli Pangan Seller</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="greeting_auth_page">Selamat datang di</string>
+    <string name="text_login">Login</string>
+    <string name="text_email">Masukkan Email</string>
+    <string name="text_password">Masukkan Password</string>
+    <string name="text_register">Daftar</string>
+    <string name="text_auth_question_login">Belum punya akun?</string>
+    <string name="text_name">Masukkan Nama</string>
+    <string name="text_auth_question_register">Sudah punya akun?</string>
+    <string name="pass_less_than_8_char">Password tidak boleh kurang dari 8 karakter</string>
+    <string name="invalid_email">Email tidak valid</string>
+    <string name="btn_text_ok">ok</string>
+    <string name="const_messages">Teks pesan</string>
+    <string name="field_empty_email">Kolom email harus diisi</string>
+    <string name="field_empty_password">Kolom password harus diisi</string>
+    <string name="field_empty_name">Kolom nama harus diisi</string>
+    <string name="info_success_register">Pendaftaran akun seller berhasil, silahkan login dengan menggunakan email dan password yang sudah didaftarkan</string>
+    <string name="add_product">Tambah produk</string>
+</resources>
