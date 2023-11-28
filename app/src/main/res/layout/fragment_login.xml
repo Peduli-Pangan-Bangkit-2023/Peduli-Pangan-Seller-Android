@@ -26,7 +26,7 @@
             android:transitionName="lottie"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/Logo_PeduliPangan" />
+            app:lottie_rawRes="@raw/logo_icon" />
 
         <TextView
             android:id="@+id/label_greet"

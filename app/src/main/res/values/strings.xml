@@ -15,7 +15,7 @@
     <string name="text_auth_question_register">Sudah punya akun?</string>
     <string name="pass_less_than_8_char">Password tidak boleh kurang dari 8 karakter</string>
     <string name="invalid_email">Email tidak valid</string>
-    <string name="btn_text_ok">ok</string>
+    <string name="btn_text_ok">OK</string>
     <string name="const_messages">Teks pesan</string>
     <string name="field_empty_email">Kolom email harus diisi</string>
     <string name="field_empty_password">Kolom password harus diisi</string>
