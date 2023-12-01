@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.alvintio.pedulipanganseller.MainActivity
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.ActivityAuthenticationBinding
+import com.alvintio.pedulipanganseller.utils.Helper
 
 class AuthenticationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthenticationBinding
@@ -16,16 +17,13 @@ class AuthenticationActivity : AppCompatActivity() {
         binding = ActivityAuthenticationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         @Suppress("DEPRECATION")
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.container, LoginFragment.newInstance())
                 .commit()
         }
+        Helper.setupFullScreen(this)
     }
 
     fun routeToMainActivity() {

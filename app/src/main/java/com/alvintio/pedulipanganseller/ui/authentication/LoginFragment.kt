@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.FragmentLoginBinding
 import com.alvintio.pedulipanganseller.utils.Const
-import com.alvintio.pedulipanganseller.utils.Helper
 import com.alvintio.pedulipanganseller.utils.SettingPreferences
 import com.alvintio.pedulipanganseller.utils.dataStore
 import com.alvintio.pedulipanganseller.viewmodel.AuthenticationViewModel
@@ -55,13 +54,13 @@ class LoginFragment : Fragment() {
                     viewModel.tempEmail.value ?: Const.preferenceDefaultValue
                 )
             }
-            vm.error.observe(viewLifecycleOwner) { error ->
-                error?.let {
-                    if (it.isNotEmpty()) {
-                        Helper.showDialogInfo(requireContext(), it)
-                    }
-                }
-            }
+           // vm.error.observe(viewLifecycleOwner) { error ->
+            //    error?.let {
+            //        if (it.isNotEmpty()) {
+            //            Helper.showDialogInfo(requireContext(), it)
+            //        }
+             //   }
+            //}
             vm.loading.observe(viewLifecycleOwner) { state ->
                 binding.loading.root.visibility = state
             }
