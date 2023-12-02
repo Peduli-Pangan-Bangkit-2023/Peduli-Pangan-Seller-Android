@@ -27,4 +27,9 @@
     <string name="price_dummy">Rp15.0000</string>
     <string name="food_dummy">Nasi Goreng</string>
     <string name="description_product">Add Description</string>
+    <string name="title_profile">Profile</string>
+    <string name="error">Akun anda belum berhasil dibuat!\n</string>
+    <string name="dummy_restaurant">Restoran Sederhana</string>
+    <string name="dummy_email">restoransederhana@email.com</string>
+    <string name="logout_profile">Logout</string>
 </resources>

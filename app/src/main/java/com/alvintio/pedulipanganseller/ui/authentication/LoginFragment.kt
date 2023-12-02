@@ -1,21 +1,20 @@
 package com.alvintio.pedulipanganseller.ui.authentication
 
+import android.content.Intent
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
+import com.alvintio.pedulipanganseller.MainActivity
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.FragmentLoginBinding
-import com.alvintio.pedulipanganseller.utils.Const
-import com.alvintio.pedulipanganseller.utils.SettingPreferences
-import com.alvintio.pedulipanganseller.utils.dataStore
 import com.alvintio.pedulipanganseller.viewmodel.AuthenticationViewModel
-import com.alvintio.pedulipanganseller.viewmodel.SettingViewModel
-import com.alvintio.pedulipanganseller.viewmodel.ViewModelSettingFactory
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class LoginFragment : Fragment() {
 
@@ -40,72 +39,39 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val pref = SettingPreferences.getInstance((activity as AuthenticationActivity).dataStore)
-        val settingViewModel =
-            ViewModelProvider(this, ViewModelSettingFactory(pref))[SettingViewModel::class.java]
 
-        viewModel.let { vm ->
-            vm.loginResult.observe(viewLifecycleOwner) { login ->
-                // success login process triggered -> save preferences
-                settingViewModel.setUserPreferences(
-                    login.loginResult.token,
-                    login.loginResult.userId,
-                    login.loginResult.name,
-                    viewModel.tempEmail.value ?: Const.preferenceDefaultValue
-                )
-            }
-           // vm.error.observe(viewLifecycleOwner) { error ->
-            //    error?.let {
-            //        if (it.isNotEmpty()) {
-            //            Helper.showDialogInfo(requireContext(), it)
-            //        }
-             //   }
-            //}
-            vm.loading.observe(viewLifecycleOwner) { state ->
-                binding.loading.root.visibility = state
-            }
+        val auth = Firebase.auth
+
+        if (auth.currentUser != null) {
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            startActivity(intent)
+            requireActivity().finish()
         }
-        settingViewModel.getUserPreferences(Const.UserPreferences.UserToken.name)
-            .observe(viewLifecycleOwner) { token ->
-                // if token triggered change -> redirect to Main Activity
-                if (token != Const.preferenceDefaultValue) (activity as AuthenticationActivity).routeToMainActivity()
-            }
-        binding.btnAction.setOnClickListener {
-            /*
-            *  NOTE REVIWER LALU :
-            *  - untuk pengecekan logic tidak dilakukan di sini namun di file custom view
-            *  - pengecekan disini -> jika input kosong tampilkan error field kosong
-            *  - selain pengecekan field kosong -> tampilkan logic error dari custom view
-            * */
 
-            /* check if input is empty or not */
-            if (binding.edLoginEmail.text?.length ?: 0 <= 0) {
+        binding.btnAction.setOnClickListener {
+            val email = binding.edLoginEmail.text.toString()
+            val password = binding.edLoginPassword.text.toString()
+
+            if (email.isEmpty()) {
                 binding.edLoginEmail.error = getString(R.string.field_empty_email)
                 binding.edLoginEmail.requestFocus()
-            } else if (binding.edLoginPassword.text?.length ?: 0 <= 0) {
+            } else if (password.isEmpty()) {
                 binding.edLoginPassword.error = getString(R.string.field_empty_password)
                 binding.edLoginPassword.requestFocus()
             }
-            /* input not empty -> check contains error */
             else if (binding.edLoginEmail.error?.length ?: 0 > 0) {
                 binding.edLoginEmail.requestFocus()
             } else if (binding.edLoginPassword.error?.length ?: 0 > 0) {
                 binding.edLoginPassword.requestFocus()
             }
-            /* not contain error */
             else {
-                val email = binding.edLoginEmail.text.toString()
-                val password = binding.edLoginPassword.text.toString()
                 viewModel.login(email, password)
             }
         }
-        binding.btnRegister.setOnClickListener {
-            /* while view models contains error -> clear error before replace fragments (to hide dialog error)*/
-            viewModel.error.postValue("")
 
+        binding.btnRegister.setOnClickListener {
             parentFragmentManager.beginTransaction().apply {
                 replace(R.id.container, RegisterFragment(), RegisterFragment::class.java.simpleName)
-                /* shared element transition to main activity */
                 addSharedElement(binding.labelAuth, "auth")
                 addSharedElement(binding.edLoginEmail, "email")
                 addSharedElement(binding.edLoginPassword, "password")
@@ -113,8 +79,24 @@ class LoginFragment : Fragment() {
                 commit()
             }
         }
-    }
 
+        viewModel.loginState.observe(viewLifecycleOwner, { loginState ->
+            when (loginState) {
+                is AuthenticationViewModel.LoginState.Success -> {
+                    Toast.makeText(requireContext(), "Login berhasil!", Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(requireContext(), MainActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
+                }
+                is AuthenticationViewModel.LoginState.Error -> {
+                    Toast.makeText(requireContext(), loginState.message, Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                }
+            }
+        })
+    }
     companion object {
         fun newInstance() = LoginFragment()
     }

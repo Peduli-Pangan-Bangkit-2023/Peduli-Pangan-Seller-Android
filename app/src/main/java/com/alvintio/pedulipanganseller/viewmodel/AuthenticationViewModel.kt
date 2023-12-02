@@ -1,77 +1,74 @@
 package com.alvintio.pedulipanganseller.viewmodel
 
-import android.util.Log
-import android.view.View
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.alvintio.pedulipanganseller.data.remote.ApiConfig
-import com.alvintio.pedulipanganseller.model.Login
-import com.alvintio.pedulipanganseller.model.Register
-import com.alvintio.pedulipanganseller.utils.Const
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
+import androidx.lifecycle.viewModelScope
+import com.alvintio.pedulipanganseller.model.User
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class AuthenticationViewModel : ViewModel() {
 
-    var loading = MutableLiveData(View.GONE)
-    val error = MutableLiveData("")
-    val tempEmail = MutableLiveData("") // hold email to saved with user preferences
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    /* for handle API response */
-    val loginResult = MutableLiveData<Login>()
-    val registerResult = MutableLiveData<Register>()
+    private val _loginState = MutableLiveData<LoginState>()
+    val loginState: LiveData<LoginState>
+        get() = _loginState
 
-    fun login(email: String, password: String) {
-        tempEmail.postValue(email) // temporary hold email for save user preferences
-        loading.postValue(View.VISIBLE)
-        val client = ApiConfig.getApiService().doLogin(email, password)
-        client.enqueue(object : Callback<Login> {
-            override fun onResponse(call: Call<Login>, response: Response<Login>) {
-                if (response.isSuccessful) {
-                    loginResult.postValue(response.body())
-                } else {
-                    response.errorBody()?.let {
-                        val errorResponse = JSONObject(it.string())
-                        val errorMessages = errorResponse.getString("message")
-                        error.postValue("LOGIN ERROR : $errorMessages")
-                    }
-                }
-                loading.postValue(View.GONE)
-            }
+    private val _userInfo = MutableLiveData<User>()
+    val userInfo: LiveData<User>
+        get() = _userInfo
 
-            override fun onFailure(call: Call<Login>, t: Throwable) {
-                loading.postValue(View.GONE)
-                Log.e(Const.TAG_AUTH, "onFailure Call: ${t.message}")
-                error.postValue(t.message)
-            }
-        })
+    sealed class LoginState {
+        object Success : LoginState()
+        class Error(val message: String) : LoginState()
     }
 
     fun register(name: String, email: String, password: String) {
-        loading.postValue(View.VISIBLE)
-        val client = ApiConfig.getApiService().doRegister(name, email, password)
-        client.enqueue(object : Callback<Register> {
-            override fun onResponse(call: Call<Register>, response: Response<Register>) {
-                if (response.isSuccessful) {
-                    registerResult.postValue(response.body())
-                } else {
-                    response.errorBody()?.let {
-                        val errorResponse = JSONObject(it.string())
-                        val errorMessages = errorResponse.getString("message")
-                        error.postValue("REGISTER ERROR : $errorMessages")
-                    }
-                }
-                loading.postValue(View.GONE)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val authResult = auth.createUserWithEmailAndPassword(email, password).await()
 
-            override fun onFailure(call: Call<Register>, t: Throwable) {
-                loading.postValue(View.GONE)
-                Log.e(Const.TAG_AUTH, "onFailure Call: ${t.message}")
-                error.postValue(t.message)
+                authResult.user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build())?.await()
+
+                val user = User(name, email, authResult.user?.uid ?: "")
+                _userInfo.postValue(user)
+
+                firestore.collection("users")
+                    .document(authResult.user?.uid ?: "")
+                    .set(user)
+                    .await()
+
+                _loginState.postValue(LoginState.Success)
+            } catch (e: Exception) {
+                _loginState.postValue(LoginState.Error(e.message ?: "Registration error"))
             }
-        })
+        }
     }
+
+    fun login(email: String, password: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val authResult = auth.signInWithEmailAndPassword(email, password).await()
+
+                val user = User(
+                    authResult.user?.displayName ?: "",
+                    authResult.user?.email ?: "",
+                    authResult.user?.uid ?: ""
+                )
+                _userInfo.postValue(user)
+
+                _loginState.postValue(LoginState.Success)
+            } catch (e: Exception) {
+                _loginState.postValue(LoginState.Error(e.message ?: "Login error"))
+            }
+        }
+    }
+
 }

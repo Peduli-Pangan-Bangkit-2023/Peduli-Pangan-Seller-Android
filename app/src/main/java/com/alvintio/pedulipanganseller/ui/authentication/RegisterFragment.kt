@@ -2,21 +2,27 @@ package com.alvintio.pedulipanganseller.ui.authentication
 
 import android.os.Bundle
 import android.transition.TransitionInflater
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.FragmentRegisterBinding
-import com.alvintio.pedulipanganseller.utils.Helper
+import com.alvintio.pedulipanganseller.model.User
 import com.alvintio.pedulipanganseller.viewmodel.AuthenticationViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 class RegisterFragment : Fragment() {
 
     private lateinit var binding: FragmentRegisterBinding
     private val viewModel: AuthenticationViewModel by activityViewModels()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,42 +43,13 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.let { vm ->
-            vm.registerResult.observe(viewLifecycleOwner) { register ->
-                if (!register.error) {
-                    val dialog = Helper.dialogInfoBuilder(
-                        (activity as AuthenticationActivity),
-                        getString(R.string.info_success_register)
-                    )
-                    val btnOk = dialog.findViewById<Button>(R.id.btn_ok)
-                    btnOk.setOnClickListener {
-                        dialog.dismiss()
-                        switchLogin()
-                    }
-                    dialog.show()
-                }
-            }
-            vm.error.observe(viewLifecycleOwner) { error ->
-                if (error.isNotEmpty()) {
-                    Helper.showDialogInfo(requireContext(), error)
-                }
-            }
-            vm.loading.observe(viewLifecycleOwner) { state ->
-                binding.loading.root.visibility = state
-            }
-        }
-        binding.btnLogin.setOnClickListener {
-            switchLogin()
-        }
-        binding.btnAction.setOnClickListener {
-            /*
-            *  NOTE REVIWER LALU :
-            *  - untuk pengecekan logic tidak dilakukan di sini namun di file custom view
-            *  - pengecekan disini -> jika input kosong tampilkan error field kosong
-            *  - selain pengecekan field kosong -> tampilkan logic error dari custom view
-            * */
+        auth = Firebase.auth
 
-            /* check if input is empty or not */
+        binding.btnLogin.setOnClickListener {
+            switchLoginFragment()
+        }
+
+        binding.btnAction.setOnClickListener {
             if (binding.edName.text?.length ?: 0 <= 0) {
                 binding.edName.error = getString(R.string.field_empty_name)
                 binding.edName.requestFocus()
@@ -83,7 +60,6 @@ class RegisterFragment : Fragment() {
                 binding.edRegisterPassword.error = getString(R.string.field_empty_password)
                 binding.edRegisterPassword.requestFocus()
             }
-            /* input not empty -> check contains error */
             else if (binding.edRegisterEmail.error?.length ?: 0 > 0) {
                 binding.edRegisterEmail.requestFocus()
             } else if (binding.edRegisterPassword.error?.length ?: 0 > 0) {
@@ -91,27 +67,67 @@ class RegisterFragment : Fragment() {
             } else if (binding.edName.error?.length ?: 0 > 0) {
                 binding.edName.requestFocus()
             }
-            /* not contain error */
             else {
                 val name = binding.edName.text.toString()
                 val email = binding.edRegisterEmail.text.toString()
                 val password = binding.edRegisterPassword.text.toString()
                 viewModel.register(name, email, password)
+                registerWithEmailAndPassword(name, email, password)
             }
         }
     }
 
-    private fun switchLogin() {
-        /* while view models contains error -> clear error before replace fragments (to hide dialog error)*/
-        viewModel.error.postValue("")
+    private fun registerWithEmailAndPassword(name: String, email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    val user = task.result?.user
+                    if (user != null) {
+                        Log.d("Register", "User created successfully")
+                        viewModel.register(binding.edName.text.toString(), email, password)
+                        saveUserDataToFirestore(user.uid, name, email)
 
+                        Toast.makeText(requireContext(), "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+
+                        switchLoginFragment()
+                    }
+                } else {
+                    val error = task.exception?.message ?: getString(R.string.error)
+                    Log.e("Register", "Registration failed: $error")
+
+                    // Menangani kesalahan registrasi
+                    if (error.contains("email address is already in use", true)) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Email telah terdaftar, mohon ganti menggunakan email lain!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Registrasi gagal: $error", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
+    private fun saveUserDataToFirestore(userId: String, name: String, email: String) {
+        val db = Firebase.firestore
+        val usersCollection = db.collection("users")
+
+        val user = User(name, email, userId)
+
+        usersCollection.document(userId)
+            .set(user)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Data telah tersimpan di Firestore!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Data belum tersimpan di Firestore!", e)
+            }
+    }
+
+    private fun switchLoginFragment() {
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.container, LoginFragment(), LoginFragment::class.java.simpleName)
-            /* shared element transition to main activity */
-            addSharedElement(binding.labelAuth, "auth")
-            addSharedElement(binding.edRegisterEmail, "email")
-            addSharedElement(binding.edRegisterPassword, "password")
-            addSharedElement(binding.containerMisc, "misc")
             commit()
         }
     }
