@@ -1,24 +1,22 @@
 package com.alvintio.pedulipanganseller.data.remote
 
 import com.alvintio.pedulipanganseller.model.Login
+import com.alvintio.pedulipanganseller.model.Product
 import com.alvintio.pedulipanganseller.model.Register
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
 
 interface ApiService {
-    @POST("login")
-    @FormUrlEncoded
-    fun doLogin(
-        @Field("email") email: String,
-        @Field("password") password: String
-    ): Call<Login>
+    @POST("/insertproduct")
+    @Multipart
+    fun uploadProduct(
+        @Part attachment: MultipartBody.Part,
+        @Part("name") name: RequestBody,
+        @Part("price") price: RequestBody,
+        @Part("detail") description: RequestBody,
 
-    @POST("register")
-    @FormUrlEncoded
-    fun doRegister(
-        @Field("name") name: String,
-        @Field("email") email: String,
-        @Field("password") password: String
-    ): Call<Register>
+    ): Call<Product>
 }

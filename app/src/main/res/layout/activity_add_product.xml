@@ -16,7 +16,7 @@
         <ImageView
             android:id="@+id/iv_product_image"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="200dp"
             android:layout_margin="12dp"
             android:scaleType="centerCrop"
             android:src="@drawable/placeholder"
@@ -37,7 +37,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/dark_green"
-                android:text="Camera" />
+                android:text="@string/camera" />
 
             <Button
                 android:id="@+id/btn_gallery"
@@ -45,15 +45,63 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/dark_green"
-                android:text="Gallery" />
+                android:text="@string/gallery" />
 
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_desc"
+            android:id="@+id/layout_name"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="12dp"
+            android:layout_height="70dp"
+            android:layout_margin="8dp"
+            android:gravity="start"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.7">
+
+            <EditText
+                android:id="@+id/ed_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:hint="@string/food_name"
+                android:backgroundTint="@color/white"
+                android:inputType="textMultiLine"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_price"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="8dp"
+            android:gravity="start"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.7">
+
+            <EditText
+                android:id="@+id/ed_price"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:hint="@string/price_food"
+                android:backgroundTint="@color/white"
+                android:inputType="textMultiLine"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_description"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_margin="8dp"
             android:gravity="start"
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
@@ -67,9 +115,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="start"
-                android:hint="@string/description_product"
+                android:hint="@string/description_food"
                 android:backgroundTint="@color/white"
                 android:inputType="textMultiLine"
+                android:maxLines="2"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,7 +130,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="4dp"
             android:backgroundTint="@color/dark_green"
-            android:text="Upload" />
+            android:text="@string/upload" />
 
         <ProgressBar
             android:id="@+id/progressbar"

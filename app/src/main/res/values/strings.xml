@@ -32,4 +32,10 @@
     <string name="dummy_restaurant">Restoran Sederhana</string>
     <string name="dummy_email">restoransederhana@email.com</string>
     <string name="logout_profile">Logout</string>
+    <string name="food_name">Masukkan Nama Makanan</string>
+    <string name="price_food">Masukkan Harga</string>
+    <string name="description_food">Masukkan Deskripsi Makanan</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="upload">Upload</string>
 </resources>

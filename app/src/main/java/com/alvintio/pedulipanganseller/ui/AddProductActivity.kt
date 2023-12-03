@@ -12,13 +12,23 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.alvintio.pedulipanganseller.R
+import com.alvintio.pedulipanganseller.data.remote.ApiConfig
 import com.alvintio.pedulipanganseller.databinding.ActivityAddProductBinding
+import com.alvintio.pedulipanganseller.model.Product
 import com.alvintio.pedulipanganseller.utils.Helper
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -82,10 +92,68 @@ class AddProductActivity : AppCompatActivity() {
             }
         }
 
+        binding.apply {
+            btnUpload.setOnClickListener {
+                val productName = edName.text.toString()
+                val productPrice = edPrice.text.toString()
+                val productDescription = edDesc.text.toString()
+
+                if (productName.isEmpty() || productPrice.isEmpty() || productDescription.isEmpty()) {
+                    showToast("Nama, harga, dan deskripsi makanan tidak boleh kosong")
+                } else {
+                    uploadProduct(productName, productPrice, productDescription, pathImg)
+                }
+            }
+        }
+
+
         Helper.setupFullScreen(this)
     }
 
-    private fun checkImagePermission() = REQUIRED_CAMERA_PERMISS.all {
+    private fun uploadProduct(productName: String, productPrice: String, productDescription: String, imagePath: String) {
+        // Membuat instance ApiService
+        val apiService = ApiConfig.getApiService()
+
+        val imageFile = File(imagePath)
+        val requestFile = imageFile.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val attachment = MultipartBody.Part.createFormData("attachment", imageFile.name, requestFile)
+
+        val name = RequestBody.create("text/plain".toMediaTypeOrNull(), productName)
+        val price = RequestBody.create("text/plain".toMediaTypeOrNull(), productPrice)
+        val description = RequestBody.create("text/plain".toMediaTypeOrNull(), productDescription)
+
+        val call = apiService.uploadProduct(attachment, name, price, description)
+        call.enqueue(object : retrofit2.Callback<Product> {
+            override fun onResponse(
+                call: retrofit2.Call<Product>,
+                response: retrofit2.Response<Product>
+            ) {
+                if (response.isSuccessful) {
+                    // Sukses, respons dengan kode 2xx
+                    showToast("Produk berhasil diunggah")
+                } else {
+                    // Gagal, respons dengan kode selain 2xx
+                    showToast("Gagal mengunggah produk. Kode: ${response.code()}")
+
+                    // Jika Anda ingin mendapatkan pesan kesalahan dari server (jika ada)
+                    val errorBody = response.errorBody()
+                    if (errorBody != null) {
+                        val errorMessage = errorBody.string()
+                        showToast("Pesan Kesalahan: $errorMessage")
+                    }
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<Product>, t: Throwable) {
+                // Gagal karena kesalahan jaringan atau lainnya
+                showToast("Gagal mengunggah produk. Silakan coba lagi.")
+            }
+        })
+    }
+
+
+
+        private fun checkImagePermission() = REQUIRED_CAMERA_PERMISS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -137,5 +205,9 @@ class AddProductActivity : AppCompatActivity() {
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryLauncher.launch(intent)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this@AddProductActivity, message, Toast.LENGTH_SHORT).show()
     }
 }
