@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,18 +19,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.alvintio.pedulipanganseller.R
+import com.alvintio.pedulipanganseller.MainActivity
 import com.alvintio.pedulipanganseller.data.remote.ApiConfig
 import com.alvintio.pedulipanganseller.databinding.ActivityAddProductBinding
 import com.alvintio.pedulipanganseller.model.Product
 import com.alvintio.pedulipanganseller.utils.Helper
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -137,6 +134,9 @@ class AddProductActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     showToast("Produk berhasil diunggah")
+                    val intent = Intent(this@AddProductActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
                     showToast("Gagal mengunggah produk. Kode: ${response.code()}")
 
@@ -154,9 +154,7 @@ class AddProductActivity : AppCompatActivity() {
         })
     }
 
-
-
-        private fun checkImagePermission() = REQUIRED_CAMERA_PERMISS.all {
+    private fun checkImagePermission() = REQUIRED_CAMERA_PERMISS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -218,7 +216,6 @@ class AddProductActivity : AppCompatActivity() {
         val datePicker = DatePickerDialog(
             this,
             { _, year, monthOfYear, dayOfMonth ->
-                // Handle date selection
                 selectedDate = String.format("%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)
                 binding.tvDateProducts.text = selectedDate
             },
@@ -226,6 +223,4 @@ class AddProductActivity : AppCompatActivity() {
         )
         datePicker.show()
     }
-
-
 }

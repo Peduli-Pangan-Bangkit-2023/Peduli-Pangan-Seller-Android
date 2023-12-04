@@ -20,6 +20,11 @@ interface ApiService {
         @Part("date") date: RequestBody,
         @Part("latitude") latitude: RequestBody,
         @Part("longitude") longitude: RequestBody
-
     ): Call<Product>
+
+    @GET("/getproducts")
+    fun getProducts(): Call<List<Product>>
+
+    @GET("/getproduct/{id}")
+    fun getProductById(@Path("id") productId: String): Call<Product>
 }
