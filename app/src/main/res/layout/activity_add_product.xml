@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -52,7 +52,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_name"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="80dp"
             android:layout_margin="8dp"
             android:gravity="start"
             android:importantForAutofill="no"
@@ -76,7 +76,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_price"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="80dp"
             android:layout_margin="8dp"
             android:gravity="start"
             android:importantForAutofill="no"
@@ -100,6 +100,31 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_description"
             android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            android:gravity="start"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.7">
+
+            <EditText
+                android:id="@+id/ed_description"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:hint="@string/description_food"
+                android:backgroundTint="@color/white"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_latitude"
+            android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_margin="8dp"
             android:gravity="start"
@@ -111,16 +136,61 @@
             app:layout_constraintVertical_bias="0.7">
 
             <EditText
-                android:id="@+id/ed_desc"
+                android:id="@+id/ed_latitude"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="start"
-                android:hint="@string/description_food"
+                android:hint="@string/latitude_restaurants"
                 android:backgroundTint="@color/white"
                 android:inputType="textMultiLine"
-                android:maxLines="2"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_longitude"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_margin="8dp"
+            android:gravity="start"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_bias="0.7">
+
+            <EditText
+                android:id="@+id/ed_longitude"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:hint="@string/longitude_restaurants"
+                android:backgroundTint="@color/white"
+                android:inputType="textMultiLine"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                style="@style/Base.Widget.AppCompat.ImageButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/date_products"
+                android:onClick="showDatePicker"
+                android:src="@drawable/ic_date" />
+
+            <TextView
+                android:id="@+id/tv_date_products"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date_products" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_upload"
@@ -145,4 +215,4 @@
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

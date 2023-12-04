@@ -17,6 +17,9 @@ interface ApiService {
         @Part("name") name: RequestBody,
         @Part("price") price: RequestBody,
         @Part("detail") description: RequestBody,
+        @Part("date") date: RequestBody,
+        @Part("latitude") latitude: RequestBody,
+        @Part("longitude") longitude: RequestBody
 
     ): Call<Product>
 }

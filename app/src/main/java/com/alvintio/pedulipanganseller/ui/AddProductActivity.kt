@@ -1,6 +1,7 @@
 package com.alvintio.pedulipanganseller.ui
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -44,6 +46,9 @@ class AddProductActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddProductBinding
 
     private var pathImg: String = ""
+
+    private var selectedDate: String = ""
+
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -96,22 +101,21 @@ class AddProductActivity : AppCompatActivity() {
             btnUpload.setOnClickListener {
                 val productName = edName.text.toString()
                 val productPrice = edPrice.text.toString()
-                val productDescription = edDesc.text.toString()
+                val productDescription = edDescription.text.toString()
+                val latitude = edLatitude.text.toString()
+                val longitude = edLongitude.text.toString()
 
-                if (productName.isEmpty() || productPrice.isEmpty() || productDescription.isEmpty()) {
-                    showToast("Nama, harga, dan deskripsi makanan tidak boleh kosong")
+                if (productName.isEmpty() || productPrice.isEmpty() || productDescription.isEmpty() || latitude.isEmpty() || longitude.isEmpty()) {
+                    showToast("Semua field harus diisi")
                 } else {
-                    uploadProduct(productName, productPrice, productDescription, pathImg)
+                    uploadProduct(productName, productPrice, productDescription, pathImg, selectedDate, latitude.toDouble(), longitude.toDouble())
                 }
             }
         }
-
-
         Helper.setupFullScreen(this)
     }
 
-    private fun uploadProduct(productName: String, productPrice: String, productDescription: String, imagePath: String) {
-        // Membuat instance ApiService
+    private fun uploadProduct(productName: String, productPrice: String, productDescription: String, imagePath: String, date: String, latitude: Double, longitude: Double) {
         val apiService = ApiConfig.getApiService()
 
         val imageFile = File(imagePath)
@@ -121,21 +125,21 @@ class AddProductActivity : AppCompatActivity() {
         val name = RequestBody.create("text/plain".toMediaTypeOrNull(), productName)
         val price = RequestBody.create("text/plain".toMediaTypeOrNull(), productPrice)
         val description = RequestBody.create("text/plain".toMediaTypeOrNull(), productDescription)
+        val date = RequestBody.create("text/plain".toMediaTypeOrNull(), selectedDate)
+        val latitude = RequestBody.create("text/plain".toMediaTypeOrNull(), latitude.toString())
+        val longitude = RequestBody.create("text/plain".toMediaTypeOrNull(), longitude.toString())
 
-        val call = apiService.uploadProduct(attachment, name, price, description)
+        val call = apiService.uploadProduct(attachment, name, price, description, date, latitude, longitude)
         call.enqueue(object : retrofit2.Callback<Product> {
             override fun onResponse(
                 call: retrofit2.Call<Product>,
                 response: retrofit2.Response<Product>
             ) {
                 if (response.isSuccessful) {
-                    // Sukses, respons dengan kode 2xx
                     showToast("Produk berhasil diunggah")
                 } else {
-                    // Gagal, respons dengan kode selain 2xx
                     showToast("Gagal mengunggah produk. Kode: ${response.code()}")
 
-                    // Jika Anda ingin mendapatkan pesan kesalahan dari server (jika ada)
                     val errorBody = response.errorBody()
                     if (errorBody != null) {
                         val errorMessage = errorBody.string()
@@ -145,7 +149,6 @@ class AddProductActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: retrofit2.Call<Product>, t: Throwable) {
-                // Gagal karena kesalahan jaringan atau lainnya
                 showToast("Gagal mengunggah produk. Silakan coba lagi.")
             }
         })
@@ -210,4 +213,19 @@ class AddProductActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this@AddProductActivity, message, Toast.LENGTH_SHORT).show()
     }
+
+    fun showDatePicker(view: View) {
+        val datePicker = DatePickerDialog(
+            this,
+            { _, year, monthOfYear, dayOfMonth ->
+                // Handle date selection
+                selectedDate = String.format("%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)
+                binding.tvDateProducts.text = selectedDate
+            },
+            2023, 0, 1
+        )
+        datePicker.show()
+    }
+
+
 }

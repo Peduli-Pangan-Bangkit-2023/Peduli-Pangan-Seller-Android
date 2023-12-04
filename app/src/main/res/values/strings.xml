@@ -38,4 +38,9 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="upload">Upload</string>
+    <string name="latitude_restaurant">Masukkan Latitude Lokasi</string>
+    <string name="longitude_restaurant">Masukkan Longitude Lokasi</string>
+    <string name="date_products">Masukkan Tanggal</string>
+    <string name="longitude_restaurants">Masukkan Longitude</string>
+    <string name="latitude_restaurants">Masukkan Latitude</string>
 </resources>
