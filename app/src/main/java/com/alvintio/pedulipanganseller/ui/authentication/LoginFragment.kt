@@ -6,9 +6,11 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.airbnb.lottie.LottieAnimationView
 import com.alvintio.pedulipanganseller.MainActivity
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.FragmentLoginBinding
@@ -20,6 +22,8 @@ class LoginFragment : Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
     private val viewModel: AuthenticationViewModel by activityViewModels()
+    private lateinit var loadingProgressBar: LottieAnimationView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +46,11 @@ class LoginFragment : Fragment() {
 
         val auth = Firebase.auth
 
+        loadingProgressBar = view.findViewById(R.id.loading)
+
+        loadingProgressBar.pauseAnimation()
+        loadingProgressBar.visibility = View.GONE
+
         if (auth.currentUser != null) {
             val intent = Intent(requireContext(), MainActivity::class.java)
             startActivity(intent)
@@ -49,20 +58,31 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnAction.setOnClickListener {
+            loadingProgressBar.playAnimation()
+            loadingProgressBar.visibility = View.VISIBLE
+
             val email = binding.edLoginEmail.text.toString()
             val password = binding.edLoginPassword.text.toString()
 
             if (email.isEmpty()) {
                 binding.edLoginEmail.error = getString(R.string.field_empty_email)
                 binding.edLoginEmail.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (password.isEmpty()) {
                 binding.edLoginPassword.error = getString(R.string.field_empty_password)
                 binding.edLoginPassword.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             }
             else if (binding.edLoginEmail.error?.length ?: 0 > 0) {
                 binding.edLoginEmail.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (binding.edLoginPassword.error?.length ?: 0 > 0) {
                 binding.edLoginPassword.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             }
             else {
                 viewModel.login(email, password)
@@ -80,7 +100,7 @@ class LoginFragment : Fragment() {
             }
         }
 
-        viewModel.loginState.observe(viewLifecycleOwner, { loginState ->
+        viewModel.loginState.observe(viewLifecycleOwner) { loginState ->
             when (loginState) {
                 is AuthenticationViewModel.LoginState.Success -> {
                     Toast.makeText(requireContext(), "Login berhasil!", Toast.LENGTH_SHORT).show()
@@ -89,13 +109,15 @@ class LoginFragment : Fragment() {
                     startActivity(intent)
                     requireActivity().finish()
                 }
+
                 is AuthenticationViewModel.LoginState.Error -> {
                     Toast.makeText(requireContext(), loginState.message, Toast.LENGTH_SHORT).show()
                 }
+
                 else -> {
                 }
             }
-        })
+        }
     }
     companion object {
         fun newInstance() = LoginFragment()

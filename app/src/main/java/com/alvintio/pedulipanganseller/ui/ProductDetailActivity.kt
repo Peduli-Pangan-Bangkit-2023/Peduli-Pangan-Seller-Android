@@ -91,8 +91,6 @@ class ProductDetailActivity : AppCompatActivity() {
         })
     }
 
-
-
     companion object {
         const val EXTRA_PRODUCT_ID = "extra_product_id"
         const val EXTRA_PRODUCT_NAME = "extra_product_name"
