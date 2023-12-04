@@ -27,4 +27,7 @@ interface ApiService {
 
     @GET("/getproduct/{id}")
     fun getProductById(@Path("id") productId: String): Call<Product>
+
+    @DELETE("/deleteproduct/{id}")
+    fun deleteProduct(@Path("id") productId: String): Call<Void>
 }

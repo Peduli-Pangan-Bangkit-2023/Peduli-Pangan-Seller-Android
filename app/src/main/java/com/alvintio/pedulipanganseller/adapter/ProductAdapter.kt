@@ -40,6 +40,7 @@ class ProductAdapter(
                     val context = itemView.context
 
                     val intent = Intent(context, ProductDetailActivity::class.java).apply {
+                        putExtra(ProductDetailActivity.EXTRA_PRODUCT_ID, product.id)
                         putExtra(ProductDetailActivity.EXTRA_PRODUCT_NAME, product.name)
                         putExtra(ProductDetailActivity.EXTRA_PRODUCT_PRICE, product.price)
                         putExtra(ProductDetailActivity.EXTRA_PRODUCT_DESCRIPTION, product.detail)
@@ -68,7 +69,7 @@ class ProductAdapter(
             .load(product.attachment)
             .placeholder(R.drawable.ic_launcher_background)
             .error(R.drawable.ic_launcher_background)
-            .into(holder.attachmentImageView) // Tambahkan baris ini
+            .into(holder.attachmentImageView)
 
     }
 }
