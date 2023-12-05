@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.airbnb.lottie.LottieAnimationView
 import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.databinding.FragmentRegisterBinding
 import com.alvintio.pedulipanganseller.model.User
@@ -23,6 +24,7 @@ class RegisterFragment : Fragment() {
     private lateinit var binding: FragmentRegisterBinding
     private val viewModel: AuthenticationViewModel by activityViewModels()
     private lateinit var auth: FirebaseAuth
+    private lateinit var loadingProgressBar: LottieAnimationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,27 +47,47 @@ class RegisterFragment : Fragment() {
 
         auth = Firebase.auth
 
+        loadingProgressBar = view.findViewById(R.id.loading)
+
+        loadingProgressBar.pauseAnimation()
+        loadingProgressBar.visibility = View.GONE
+
         binding.btnLogin.setOnClickListener {
             switchLoginFragment()
         }
 
         binding.btnAction.setOnClickListener {
+            loadingProgressBar.playAnimation()
+            loadingProgressBar.visibility = View.VISIBLE
+
             if (binding.edName.text?.length ?: 0 <= 0) {
                 binding.edName.error = getString(R.string.field_empty_name)
                 binding.edName.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (binding.edRegisterEmail.text?.length ?: 0 <= 0) {
                 binding.edRegisterEmail.error = getString(R.string.field_empty_email)
                 binding.edRegisterEmail.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (binding.edRegisterPassword.text?.length ?: 0 <= 0) {
                 binding.edRegisterPassword.error = getString(R.string.field_empty_password)
                 binding.edRegisterPassword.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             }
             else if (binding.edRegisterEmail.error?.length ?: 0 > 0) {
                 binding.edRegisterEmail.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (binding.edRegisterPassword.error?.length ?: 0 > 0) {
                 binding.edRegisterPassword.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             } else if (binding.edName.error?.length ?: 0 > 0) {
                 binding.edName.requestFocus()
+                loadingProgressBar.pauseAnimation()
+                loadingProgressBar.visibility = View.GONE
             }
             else {
                 val name = binding.edName.text.toString()
@@ -95,8 +117,9 @@ class RegisterFragment : Fragment() {
                     val error = task.exception?.message ?: getString(R.string.error)
                     Log.e("Register", "Registration failed: $error")
 
-                    // Menangani kesalahan registrasi
                     if (error.contains("email address is already in use", true)) {
+                        loadingProgressBar.pauseAnimation()
+                        loadingProgressBar.visibility = View.GONE
                         Toast.makeText(
                             requireContext(),
                             "Email telah terdaftar, mohon ganti menggunakan email lain!",
