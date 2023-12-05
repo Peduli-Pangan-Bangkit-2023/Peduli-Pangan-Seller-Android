@@ -6,12 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.alvintio.pedulipanganseller.databinding.FragmentProfileBinding
 import com.alvintio.pedulipanganseller.ui.authentication.AuthenticationActivity
+import com.alvintio.pedulipanganseller.viewmodel.RestaurantViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment() {
+    private val restaurantViewModel: RestaurantViewModel by activityViewModels()
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
@@ -53,11 +56,10 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Observasi data pengguna dari Firestore
         profileViewModel.userData.observe(viewLifecycleOwner) { userData ->
-            // Update UI dengan informasi pengguna dari Firestore
             binding.tvUserName.text = userData.name
             binding.tvUserEmail.text = userData.email
+            restaurantViewModel.restaurantName = userData.name
         }
     }
 
