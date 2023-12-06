@@ -18,6 +18,10 @@ import com.alvintio.pedulipanganseller.model.Product
 import com.alvintio.pedulipanganseller.ui.AddProductActivity
 import com.alvintio.pedulipanganseller.viewmodel.RestaurantViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 
 class HomeFragment : Fragment() {
     private val restaurantViewModel: RestaurantViewModel by activityViewModels()
@@ -59,7 +63,10 @@ class HomeFragment : Fragment() {
                 if (response.isSuccessful) {
                     val productList = response.body()
                     productList?.let {
-                        val restaurantName = restaurantViewModel.restaurantName
+                        val restaurantName = runBlocking {
+                            getRestaurantOwnerFromFirestore()
+                        }
+
                         val filteredProducts = it.filter { product -> product.name == restaurantName }
                         updateUI(filteredProducts)
                     }
@@ -83,6 +90,32 @@ class HomeFragment : Fragment() {
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private suspend fun getRestaurantOwnerFromFirestore(): String {
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+
+        return if (currentUser != null) {
+            val userId = currentUser.uid
+
+            try {
+                val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+                val userSnapshot = userDocRef.get().await()
+
+                if (userSnapshot.exists()) {
+                    val restaurantName = userSnapshot.getString("name")
+                    restaurantName ?: "NamaRestoranDefault"
+                } else {
+                    "NamaRestoranDefault"
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "NamaRestoranDefault"
+            }
+        } else {
+            "NamaRestoranDefault"
+        }
     }
 
     override fun onDestroyView() {
