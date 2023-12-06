@@ -44,7 +44,7 @@
     <string name="longitude_restaurants">Masukkan Longitude</string>
     <string name="latitude_restaurants">Masukkan Latitude</string>
     <string name="product_detail">Nasi Goreng</string>
-    <string name="product_detail_price">Rp1.000.000</string>
+    <string name="product_detail_price">Rp 1.000.000</string>
     <string name="product_detail_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fermentum porttitor orci, id faucibus magna. Etiam venenatis dictum nibh quis sollicitudin. Aenean dapibus sapien vitae faucibus sagittis. Curabitur consequat dolor quis molestie maximus. Phasellus vel lorem tortor. Donec pretium metus non nisi facilisis, at vulputate nunc laoreet. Aliquam dignissim rhoncus aliquet. Fusce ex purus, tincidunt eu viverra ut, volutpat nec felis.</string>
     <string name="delete_products">Delete Products</string>
     <string name="insert_restaurant_name">Masukkan Name Restoran</string>
