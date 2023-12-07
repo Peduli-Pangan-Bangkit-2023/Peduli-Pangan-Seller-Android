@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.alvintio.pedulipanganseller.MainActivity
+import com.alvintio.pedulipanganseller.R
 import com.alvintio.pedulipanganseller.data.remote.ApiConfig
 import com.alvintio.pedulipanganseller.databinding.ActivityAddProductBinding
 import com.alvintio.pedulipanganseller.model.Product
@@ -102,8 +103,30 @@ class AddProductActivity : AppCompatActivity() {
                 val latitude = edLatitude.text.toString()
                 val longitude = edLongitude.text.toString()
 
+                val inputName = edName.text.toString().trim()
+                val inputPrice = edPrice.text.toString().trim()
+                val inputDesc = edDescription.text.toString().trim()
+                val inputLat = edLatitude.text.toString().trim()
+                val inputLong = edLongitude.text.toString().trim()
+
+                if (inputName.isEmpty()) {
+                    edName.error = getString(R.string.insert_restaurant_name)
+                }
+                if (inputPrice.isEmpty()) {
+                    edPrice.error = getString(R.string.price_food)
+                }
+                if (inputDesc.isEmpty()) {
+                    edDescription.error = getString(R.string.description_food)
+                }
+                if (inputLat.isEmpty()) {
+                    edLatitude.error = getString(R.string.latitude_restaurant)
+                }
+                if (inputLong.isEmpty()) {
+                    edLongitude.error = getString(R.string.longitude_restaurant)
+                }
+
                 if (productName.isEmpty() || productPrice.isEmpty() || productDescription.isEmpty() || latitude.isEmpty() || longitude.isEmpty()) {
-                    showToast("Semua field harus diisi")
+                    showToast(getString(R.string.required_fields))
                 } else {
                     uploadProduct(productName, productPrice, productDescription, pathImg, selectedDate, latitude.toDouble(), longitude.toDouble())
                 }
@@ -133,7 +156,7 @@ class AddProductActivity : AppCompatActivity() {
                 response: retrofit2.Response<Product>
             ) {
                 if (response.isSuccessful) {
-                    showToast("Produk berhasil diunggah")
+                    showToast(getString(R.string.successfully_uploaded))
                     val intent = Intent(this@AddProductActivity, MainActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -149,7 +172,7 @@ class AddProductActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: retrofit2.Call<Product>, t: Throwable) {
-                showToast("Gagal mengunggah produk. Silakan coba lagi.")
+                showToast(getString(R.string.failed_upload))
             }
         })
     }
